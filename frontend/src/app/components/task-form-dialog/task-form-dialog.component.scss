@@ -1,0 +1,21 @@
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+// Responsive styles
+@media (max-width: 576px) {
+  .mat-dialog-content {
+    max-height: calc(100vh - 200px);
+  }
+}
