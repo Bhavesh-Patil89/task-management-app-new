@@ -1,0 +1,14 @@
+<mat-toolbar color="primary">
+    <span>{{title}}</span>
+    <span class="spacer"></span>
+    <button mat-icon-button matTooltip="Create New Task" (click)="openNewTaskDialog()">
+        <mat-icon>add_circle</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="My Tasks" (click)="showMyTasks()">
+        <mat-icon>assignment</mat-icon>
+    </button>
+</mat-toolbar>
+
+<div class="container">
+    <app-task-list></app-task-list>
+</div>

@@ -1,0 +1,22 @@
+.mat-mdc-card {
+    margin: 20px 0;
+}
+
+.mat-column-actions {
+    width: 120px;
+    text-align: center;
+}
+
+.mat-column-completed {
+    width: 100px;
+    text-align: center;
+}
+
+.mat-column-priority {
+    width: 120px;
+}
+
+.task-completed {
+    text-decoration: line-through;
+    color: rgba(0, 0, 0, 0.5);
+}

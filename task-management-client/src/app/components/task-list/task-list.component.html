@@ -1,0 +1,223 @@
+
+<div class="task-management-container">
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-overlay">
+      <mat-spinner color="primary"></mat-spinner>
+    </div>
+  
+    <!-- Error Message -->
+    <mat-card *ngIf="errorMessage" class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn">error_outline</mat-icon>
+        <p>{{ errorMessage }}</p>
+      </mat-card-content>
+    </mat-card>
+  
+    <!-- Task Stats -->
+    <div class="task-stats" *ngIf="!isLoading && !errorMessage">
+      <mat-card>
+        <mat-card-content>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <mat-icon>list</mat-icon>
+              <span>Total Tasks: {{ getTaskCount() }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>check_circle</mat-icon>
+              <span>Completed: {{ getCompletedTaskCount() }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <!-- Add Task Form -->
+    <mat-card class="add-task-form">
+      <mat-card-header>
+        <mat-card-title>Add New Task</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form (ngSubmit)="addTask(taskForm)" #taskForm="ngForm">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Title</mat-label>
+              <input matInput name="title" [(ngModel)]="newTask.title" required>
+              <mat-error *ngIf="taskForm.controls['title']?.invalid">Title is required</mat-error>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline">
+              <mat-label>Priority</mat-label>
+              <mat-select name="priority" [(ngModel)]="newTask.priority" required>
+                <mat-option value="High">High</mat-option>
+                <mat-option value="Medium">Medium</mat-option>
+                <mat-option value="Low">Low</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+  
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput name="description" [(ngModel)]="newTask.description" rows="3"></textarea>
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline">
+            <mat-label>Due Date</mat-label>
+            <input matInput [matDatepicker]="picker" name="dueDate" [(ngModel)]="newTask.dueDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+  
+          <div class="form-actions">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="taskForm.invalid"
+            >
+              Add Task
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  
+    <!-- Task List -->
+    <div class="task-grid" *ngIf="!isLoading && !errorMessage">
+      <mat-card 
+        *ngFor="let task of tasks" 
+        class="task-card" 
+        [class.completed]="task.completed"
+        [@taskAnimation]
+      >
+        <!-- View Mode -->
+        <ng-container *ngIf="editingTask?.id !== task.id">
+          <mat-card-header>
+            <mat-card-title>{{ task.title }}</mat-card-title>
+            <mat-card-subtitle>
+              <span 
+                class="priority-chip" 
+                [class]="'priority-' + task.priority.toLowerCase()"
+              >
+                {{ task.priority }}
+              </span>
+            </mat-card-subtitle>
+          </mat-card-header>
+  
+          <mat-card-content>
+            <p>{{ task.description }}</p>
+            <p *ngIf="task.dueDate">
+              <strong>Due Date:</strong> {{ task.dueDate | date:'mediumDate' }}
+            </p>
+          </mat-card-content>
+  
+          <mat-card-actions>
+            <button 
+              mat-icon-button 
+              color="primary" 
+              (click)="editTask(task)" 
+              matTooltip="Edit Task"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button 
+              mat-icon-button 
+              color="warn" 
+              (click)="deleteTask(task.id)" 
+              matTooltip="Delete Task"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button 
+              mat-icon-button 
+              [color]="task.completed ? 'accent' : 'primary'" 
+              (click)="toggleTaskCompletion(task)"
+              matTooltip="{{ task.completed ? 'Mark Incomplete' : 'Mark Complete' }}"
+            >
+              <mat-icon>
+                {{ task.completed ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+            </button>
+          </mat-card-actions>
+        </ng-container>
+  
+        <!-- Edit Mode -->
+        <ng-container *ngIf="editingTask?.id === task.id">
+          <mat-card-content>
+            <form (ngSubmit)="updateTask()" #editForm="ngForm">
+              <mat-form-field appearance="outline">
+                <mat-label>Title</mat-label>
+                <input 
+                  matInput 
+                  name="title" 
+                  [(ngModel)]="editingTask!.title" 
+                  required
+                >
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea 
+                  matInput 
+                  name="description" 
+                  [(ngModel)]="editingTask!.description"
+                ></textarea>
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline">
+                <mat-label>Priority</mat-label>
+                <mat-select 
+                  name="priority" 
+                  [(ngModel)]="editingTask!.priority" 
+                  required
+                >
+                  <mat-option value="High">High</mat-option>
+                  <mat-option value="Medium">Medium</mat-option>
+                  <mat-option value="Low">Low</mat-option>
+                </mat-select>
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline">
+                <mat-label>Due Date</mat-label>
+                <input 
+                  matInput 
+                  [matDatepicker]="editPicker" 
+                  name="dueDate" 
+                  [(ngModel)]="editingTask!.dueDate"
+                >
+                <mat-datepicker-toggle matSuffix [for]="editPicker"></mat-datepicker-toggle>
+                <mat-datepicker #editPicker></mat-datepicker>
+              </mat-form-field>
+  
+              <mat-card-actions>
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  type="submit" 
+                  [disabled]="editForm.invalid"
+                >
+                  Save Changes
+                </button>
+                <button 
+                  mat-button 
+                  type="button" 
+                  (click)="cancelEdit()"
+                >
+                  Cancel
+                </button>
+              </mat-card-actions>
+            </form>
+          </mat-card-content>
+        </ng-container>
+      </mat-card>
+    </div>
+  
+    <!-- Empty State -->
+    <div 
+      *ngIf="!isLoading && !errorMessage && tasks.length === 0" 
+      class="empty-state"
+    >
+      <mat-icon>assignment</mat-icon>
+      <h2>No Tasks Yet</h2>
+      <p>Start by adding a new task above!</p>
+    </div>
+  </div>
