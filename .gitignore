@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Node dependencies
 node_modules/
 
@@ -25,3 +26,9 @@ yarn-error.log*
 *.tgz
 .angular/
 
+=======
+node_modules/
+dist/
+.angular/
+.env
+>>>>>>> aea362bd1873b49b13772861af58642bac3111d7
