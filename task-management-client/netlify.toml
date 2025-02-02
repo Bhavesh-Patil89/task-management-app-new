@@ -1,0 +1,7 @@
+[build]
+  base = "task-management-client"  # Adjust this if necessary
+  publish = "task-management-client/dist/task-management-client"  # Adjust based on your build output
+  command = "ng build --configuration=production"  # Command to build your app
+
+[dev]
+  command = "ng serve"  # Optional: command to run during local development
